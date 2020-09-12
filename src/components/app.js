@@ -8,16 +8,18 @@ import cls from "../style/list.module.less";
 
 class App extends Component {
 	state = { load: false };
-	async xml2json() {
+	async xml2json(text) {
 		let vm = this;
+		// http://musicbrainz.org/ws/2/cdstub/?query=title:Doo
 		let response = await fetch(
-			"http://musicbrainz.org/ws/2/cdstub/?query=title:Doo"
+			`https://musicbrainz.org/ws/2/artist?query=name:${text}`
+			//
 		);
 		response = await response.text();
 		let parser = new DOMParser();
 		let json = [];
 		let xmlObj = await parser.parseFromString(response, "application/xml");
-		xmlObj.querySelectorAll("metadata cdstub").forEach((el, idx) => {
+		xmlObj.querySelectorAll("artist").forEach((el, idx) => {
 			json.push({ id: el.id });
 			el.childNodes.forEach((n) => {
 				if (n.textContent) {
@@ -29,7 +31,6 @@ class App extends Component {
 	}
 	componentDidMount() {
 		console.log("test");
-		this.xml2json();
 	}
 	addTodos = () => {
 		this.props.addTodo(this.state.text);
@@ -42,10 +43,11 @@ class App extends Component {
 
 	updateText = (e) => {
 		this.setState({ text: e.target.value });
+		this.xml2json(this.state.text);
 	};
 
 	render({ todos }, { text }) {
-		// console.log(this.state.json);
+		console.log(this.state.json);
 		if (this.state.load == true) {
 			console.log(this.state.json[0].id);
 		}
@@ -60,12 +62,12 @@ class App extends Component {
 						placeholder="New ToDo..."
 					/>
 				</form>
-				<ul className={cls.ul}>
+				<ul className={"ul"}>
 					{/* {todos.map((todo) => (
 						<TodoItem key={todo.id} todo={todo} onRemove={this.removeTodo} />
 					))} */}
 					{this.state.load
-						? this.state.json.map((el, idx) => <li key={el.id}>{el.title}</li>)
+						? this.state.json.map((el, idx) => <li key={el.id}>{el.name}</li>)
 						: null}
 				</ul>
 			</div>
