@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, Component } from "preact";
 
 export default class TodoItem extends Component {
 	remove = () => {
@@ -14,7 +14,7 @@ export default class TodoItem extends Component {
 		return (
 			<li>
 				<button onClick={this.remove}>×</button>
-				{ ' ' + todo.text }
+				{" " + todo.text}
 			</li>
 		);
 	}
