@@ -1,19 +1,18 @@
 import { h, Component } from "preact";
 import { connect } from "preact-redux";
-import reduce from "../reducers";
-import * as actions from "../actions";
-import TodoItem from "./todo-item";
+import { saveArtist, removeArtist } from "../actions/index";
+import ArtistItem from "./artist-item";
 import "../style/list.module.less";
 import cls from "../style/list.module.less";
+import store from "../store";
+import SelectedItems from "./selectedItems";
 
 class App extends Component {
 	state = { load: false };
 	async xml2json(text) {
 		let vm = this;
-		// http://musicbrainz.org/ws/2/cdstub/?query=title:Doo
 		let response = await fetch(
 			`https://musicbrainz.org/ws/2/artist?query=name:${text}`
-			//
 		);
 		response = await response.text();
 		let parser = new DOMParser();
@@ -29,33 +28,28 @@ class App extends Component {
 			vm.setState({ json, load: true });
 		});
 	}
-	componentDidMount() {
-		console.log("test");
-	}
-	addTodos = () => {
-		this.props.addTodo(this.state.text);
-		this.setState({ text: "" });
-	};
-
-	removeTodo = (todo) => {
-		this.props.removeTodo(todo);
+	removeArtistById = (id) => {
+		this.props.removeArtist(id);
+		console.log(store.getState());
 	};
 
 	updateText = (e) => {
 		this.setState({ text: e.target.value });
 		this.xml2json(this.state.text);
 	};
-
-	render({ todos }, { text }) {
-		console.log(this.state.json);
-		if (this.state.load == true) {
-			console.log(this.state.json[0].id);
-		}
-		console.log(cls);
+	onSave = (elem) => {
+		this.props.saveArtist(elem);
+		this.setState({ text: "" });
+		console.log(store.getState());
+	};
+	render({}, { text }) {
 		return (
 			<div id="app">
-				{/* {this.state.json[0]} */}
-				<form onSubmit={this.addTodos} action="javascript:">
+				<SelectedItems
+					selectedArtists={store.getState().artists}
+					onRemove={this.removeArtistById}
+				/>
+				<form action="javascript:">
 					<input
 						value={text}
 						onInput={this.updateText}
@@ -63,15 +57,29 @@ class App extends Component {
 					/>
 				</form>
 				<ul className={"ul"}>
-					{/* {todos.map((todo) => (
-						<TodoItem key={todo.id} todo={todo} onRemove={this.removeTodo} />
-					))} */}
 					{this.state.load
-						? this.state.json.map((el, idx) => <li key={el.id}>{el.name}</li>)
+						? this.state.json.map((el, idx) => (
+								<ArtistItem
+									key={el.id}
+									onRemove={this.removeArtistById}
+									item={el}
+									onSave={this.onSave}
+								/>
+						  ))
 						: null}
 				</ul>
 			</div>
 		);
 	}
 }
-export default connect(reduce, actions)(App);
+
+const mapStateToProps = ({ artists }) => {
+	return {
+		artists,
+	};
+};
+const mapDispatchToProps = {
+	saveArtist,
+	removeArtist,
+};
+export default connect(mapStateToProps, mapDispatchToProps)(App);
