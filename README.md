@@ -1,4 +1,4 @@
-# MusicBrainz_API Попробовал Preact
+# MusicBrainz_API Делал на Preact
 Тестовое задание от команды ultimate-guitar на вакансию React/Redux разработчика /
 
 Создать простое приложение (React + Redux,система стилизации – любая (CSS modules/ CSS-in-JS) о музыкальных альбомах. Данные можно взять с сайта musicbrainz.org: https://wiki.musicbrainz.org/Development/JSON_Web_Service
